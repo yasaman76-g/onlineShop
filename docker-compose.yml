@@ -1,0 +1,50 @@
+version: "3.9"
+services:
+   
+   web:
+    container_name: shop-web
+    build: .
+    command: ./docker-entrypoint.sh
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_DB=shop
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=123456
+    depends_on:
+      - db
+
+
+   db:
+    container_name: shop-db
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: shop
+    ports:
+      - "5430:5432"
+
+   pgadmin:
+    container_name: shop-pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+    ports:
+      - "80:80"
+
+
+   cache:
+      image: redis
+      container_name: shop-redis
+      restart: always
+      ports:
+       - '6379:6379'
+        
