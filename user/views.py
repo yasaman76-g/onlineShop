@@ -9,11 +9,12 @@ from .models import User, UserLogLogin,UserVerifyCode
 from .serializers import UserSerializer,UpdateUserSerializer
 from random import randrange
 from datetime import datetime, timedelta
-import jwt
+import requests
+import json
 
 class GetUser(APIView):
     def get(self,request:HttpRequest):
-        mobile = request.POST.get("mobile")
+        mobile = request.GET.get("mobile")
         user:User = User.objects.filter(mobile=mobile).first()
         is_new_user = True
         if user is not None:
@@ -65,22 +66,19 @@ class Register(APIView):
             UserVerifyCode.objects.filter(
                 mobile=mobile, code=code).update(expire_at=datetime.now())
             
-            exp = datetime.utcnow() + timedelta(minutes=60)
-            iat = datetime.utcnow()
-            payload = {
-                'id' : serializer.data["id"],
-                'exp' : exp,
-                'iat' : iat
-            }
-            token = jwt.encode(payload,'secret',algorithm='HS256')
-            response = Response(status=status.HTTP_200_OK)
-            response.set_cookie(key='jwt',value=token,httponly=True)
-            response.data = {
-                "token":token,
-                "user":serializer.data
+            url = "http://"+ request.get_host() +"/api/token/"
+            headers = {
+                "Content-Type" : "application/json",
             }
             
-            return response
+            data = {
+                "username": mobile, 
+                "password": code
+            }
+            
+            response = requests.post(url, data=json.dumps(data),headers=headers)
+            return Response(response.json())
+            
         
         #Check the number of attempts to get code
         count_of_code = UserVerifyCode.objects.filter(
@@ -119,15 +117,7 @@ class Register(APIView):
             
 class UpdateUserProfile(APIView):
     def patch(self,request:HttpRequest):
-        token = request.COOKIES.get('jwt')
-        if not token:
-            raise AuthenticationFailed('unauthenticated')
-
-        try:
-            payload = jwt.decode(token,'secret',algorithms=['HS256'])  
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('unauthenticated')
-        user = get_object_or_404(User,pk=payload['id'])
+        user = get_object_or_404(User,pk=request.user.id)
         serializer = UpdateUserSerializer(user,data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -156,22 +146,19 @@ class LoginUser(APIView):
                 UserLogLogin.objects.create(mobile=mobile,ip=ip,logged_in=1)
                 
                 serializer = UserSerializer(user)
-                exp = datetime.utcnow() + timedelta(minutes=60)
-                iat = datetime.utcnow()
-                payload = {
-                    'id' : serializer.data["id"],
-                    'exp' : exp,
-                    'iat' : iat
-                }
-                token = jwt.encode(payload,'secret',algorithm='HS256')
-                response = Response(status=status.HTTP_200_OK)
-                response.set_cookie(key='jwt',value=token,httponly=True)
-                response.data = {
-                    "token":token,
-                    "user":serializer.data
+                url = "http://"+ request.get_host() +"/api/token/"
+                headers = {
+                    "Content-Type" : "application/json",
                 }
                 
-                return response
+                data = {
+                    "username": mobile, 
+                    "password": password
+                }
+                
+                response = requests.post(url, data=json.dumps(data),headers=headers)
+                
+                return Response(response.json())
             else:
                 UserLogLogin.objects.create(mobile=mobile,ip=ip,logged_in=0)
                 

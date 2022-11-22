@@ -1,8 +1,9 @@
 Django==4.1
 psycopg2-binary>=2.8
 djangorestframework
-PyJWT
 django-cors-headers
 django-redis
 drf-nested-routers
 django-debug-toolbar==3.7.0 
+djangorestframework-simplejwt
+requests
