@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
+from helper.email import send_email_template
 from .models import User, UserLogLogin,UserVerifyCode
 from .serializers import UserSerializer,UpdateUserSerializer
 from random import randrange
@@ -62,6 +63,8 @@ class Register(APIView):
                 data=request.data, context={"code": code})
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            
+            send_email_template(template_name="emails/register_user.html",context={"mobile" : mobile},to=['y.golesorkh@gamil.com'])
 
             UserVerifyCode.objects.filter(
                 mobile=mobile, code=code).update(expire_at=datetime.now())
@@ -72,7 +75,7 @@ class Register(APIView):
             }
             
             data = {
-                "username": mobile, 
+                "mobile": mobile, 
                 "password": code
             }
             
@@ -152,7 +155,7 @@ class LoginUser(APIView):
                 }
                 
                 data = {
-                    "username": mobile, 
+                    "mobile": mobile, 
                     "password": password
                 }
                 

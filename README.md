@@ -1,2 +1,2 @@
 # onlineShop
-this is online shop with Python/Django
+This project is online shop with Python/Django

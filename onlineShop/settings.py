@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-from calendar import month
 import os
 from pathlib import Path
 from datetime import timedelta
@@ -64,7 +63,7 @@ ROOT_URLCONF = 'onlineShop.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates/')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -169,6 +168,23 @@ CACHES = {
         }
     }
 }
+
+# Base url to serve media files
+MEDIA_URL = '/media/'
+
+# Path where media is stored
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'shop-smtp'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 25
+DEFAULT_FROM_EMAIL = 'ya30gol7676@gmail.com'
+
+ADMINS = [
+    ('admin','y.golesorkh@gmail.com')
+]
 
 if DEBUG:
     import socket  # only if you haven't already imported this

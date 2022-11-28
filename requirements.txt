@@ -6,4 +6,6 @@ django-redis
 drf-nested-routers
 django-debug-toolbar==3.7.0 
 djangorestframework-simplejwt
+django-templated-mail==1.1.1 
 requests
+Pillow==9.3.0

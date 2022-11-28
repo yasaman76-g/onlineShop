@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
           
     def create(self, validated_data):
         password = self.context["code"]
-        user = User(mobile=validated_data.get("mobile"),username=validated_data.get("mobile"))
+        user = User(mobile=validated_data.get("mobile"))
         user.set_password(password)
         user.save()
         return user
@@ -28,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','first_name','last_name','email','password']
+        fields = ['id','first_name','last_name','email','password','avatar']
         extra_kwargs = {'password': {'write_only': True,'required':False}}
         
     def update(self, instance:User, validated_data):
